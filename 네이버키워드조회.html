@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>네이버 순위 조회 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+            width: 400px;
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            color: #333;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: block;
+            text-align: left;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #1E90FF;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background: #187bcd;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f9fafb;
+            border: 1px solid #ddd;
+            min-height: 60px;
+            white-space: pre-line;
+            font-size: 15px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>네이버 순위 조회</h2>
+
+    <label>키워드 (필수)</label>
+    <input id="keyword" placeholder="예: 공릉맛집">
+
+    <label>업체명 (필수)</label>
+    <input id="store" placeholder="예: 서오릉피자 공릉점">
+
+    <label>핸드폰 번호 (선택, 문자 받을 때만)</label>
+    <input id="phone" placeholder="예: 01023357654">
+
+    <button onclick="sendRequest()">순위 조회하기</button>
+
+    <div id="result">결과가 표시됩니다.</div>
+</div>
+
+<script>
+function sendRequest() {
+    const k = document.getElementById('keyword').value.trim();
+    const f = document.getElementById('store').value.trim();
+    const cp = document.getElementById('phone').value.trim();
+
+    if (!k || !f) {
+        alert("키워드와 업체명은 반드시 입력해야 합니다.");
+        return;
+    }
+
+    const url = `https://manspizza.mycafe24.com/cron/place.php?k=${encodeURIComponent(k)}&f=${encodeURIComponent(f)}&cp=${encodeURIComponent(cp)}`;
+
+    document.getElementById("result").innerText = "조회 중...";
+
+    fetch(url)
+        .then(res => res.text())
+        .then(data => {
+            const clean = data.trim();
+
+            // ⚠ 조건: 값이 비어있으면 → 300위 이상
+            if (clean === "" || clean.length < 2) {
+                document.getElementById("result").innerText =
+                    "순위가 300위 이상입니다.\n(네이버 검색 결과 내 300위 밖 위치)";
+                return;
+            }
+
+            // 정상 데이터 출력
+            document.getElementById("result").innerText = clean;
+        })
+        .catch(err => {
+            document.getElementById("result").innerText = "오류가 발생했습니다.\n" + err;
+        });
+}
+</script>
+
+</body>
+</html>
